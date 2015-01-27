@@ -8,8 +8,14 @@ from matcher import StringMatcher
 
 if __name__ == '__main__':
     sm = StringMatcher()
-    fname = "data.csv"
+    data = "data.txt"
+    name_file = 'names.csv'
     
+    for line in open(data, 'r'):
+        print line
+    
+    for names in open( name_file, 'r' ):
+        print names
     
     
     s1 = "ciao"

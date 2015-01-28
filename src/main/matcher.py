@@ -22,21 +22,23 @@ class StringMatcher(object):
             j = i+1
             yield ( l[i], l[j] )
     
+    def search_name(self, person, document):
+        di = self.threshold
+        for chunk in self.windower(document):
+            word = ' '.join(chunk)
+            rev_word = ' '.join(chunk[::-1])
+            
+            di = min( di, self.match( person, word ), self.match( person, rev_word ) )
+            
+            if di == 0: break
+                
+        pi = 1 - (di / self.threshold)
+        return pi
+    
     def match_document(self, document):
         for ni, mj in self.correlation_map.keys():
-            di = dj = self.threshold
-            
-            for chunk in self.windower(document):
-                word = ' '.join(chunk)
-                rev_word = ' '.join(chunk)
-                
-                di = di if di == 0 else min( di, self.match( ni, word ), self.match( ni, rev_word ) )
-                dj = dj if dj == 0 else min( dj, self.match( mj, word ), self.match( mj, rev_word ) )
-                
-                if di == 0 and dj == 0: break
-                
-            pi = 1 - (di / self.threshold)
-            pj = 1 - (dj / self.threshold)
+            pi = self.search_name(ni, document)
+            pj = self.search_name(mj, document)
             
             self.presence[ni] = pi
             self.presence[mj] = pj

@@ -23,17 +23,50 @@ class StringMatcher(object):
             yield ( l[i], l[j] )
     
     def search_name(self, person, document):
-        di = self.threshold
+        name  = lambda p : p.split(" ")[0]
+        sname = lambda p : p.split(" ")[1]
+        
+        min_d_name = min_d_sname = self.threshold
+        min_w_name = min_w_sname = ""
+        max_p = 0
         for chunk in self.windower(document):
-            word = ' '.join(chunk)
-            rev_word = ' '.join(chunk[::-1])
+            cname   = chunk[0]
+            csname  = chunk[1]
             
-            di = min( di, self.match( person, word ), self.match( person, rev_word ) )
+            c_d_name  = self.match( name(person), cname )
+            c_d_sname = self.match( sname(person), csname )
             
-            if di == 0: break
+            pname   = 1 - ( float(c_d_name) / max(len(cname), len(name(person))) )
+            psname  = 1 - ( float(c_d_sname) / max(len(csname), len(sname(person))) )
+            
+            p = 0.1 * pname + 0.9 * psname
+            p = pname * psname
+            
+            if p > max_p:
+                if "mazzicone" in person:
+                    print "*** {} ***".format(person)
+                    print "Name: {} -> {} = {}".format(name(person), cname, pname)
+                    print "Surname: {} -> {} = {}".format( sname(person), csname, psname )
+                    print "Total prob: {} -> {}".format(max_p, p)
+                max_p = p
+            
+#             if c_d_name < min_d_name and c_d_sname < min_d_sname:
+#                 min_d_name = c_d_name
+#                 min_d_sname = c_d_sname
+#                 min_w_name = cname
+#                 min_w_sname = csname
+#                 
+#                 if "mazzicone" in person:
+#                     print "*** {} ***".format(person)
+#                     print "Name: {} -> {} = {}".format(name(person), cname, c_d_name)
+#                     print "Surname: {} -> {} = {}".format( sname(person), csname, c_d_sname )
                 
-        pi = 1 - (di / self.threshold)
-        return pi
+        
+#         pname   = 1 - ( float(min_d_name) / max(len(min_w_name), len(name(person))) )
+#         psname  = 1 - ( float(min_d_sname) / max(len(min_w_sname), len(sname(person))) )
+#         
+#         p = 0.3 * pname + 0.7 * psname
+        return max_p
     
     def match_document(self, document):
         for ni, mj in self.correlation_map.keys():

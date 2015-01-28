@@ -11,12 +11,8 @@ if __name__ == '__main__':
     data = "data.txt"
     name_file = 'names.csv'
     
-    for line in open(data, 'r'):
-        print line
-    
-    for names in open( name_file, 'r' ):
-        print names
-    
+    text = sm.read( data )
+    print text
     
     s1 = "ciao"
     s2 = "mondo"

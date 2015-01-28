@@ -5,6 +5,7 @@ Created on Jan 27, 2015
 '''
 
 import Levenshtein as lev  # @UnresolvedImport
+import string
 
 class StringMatcher(object):
     '''
@@ -17,3 +18,8 @@ class StringMatcher(object):
     
     def match(self, s1, s2):
         return lev.distance(s1, s2)
+    
+    def read(self, data):
+        text = ''.join( [ x.lower() for x in open( data, 'r' ).readlines() ] ).replace("\n", " ")
+        return text.translate(string.maketrans("",""), string.punctuation).split(" ")
+        

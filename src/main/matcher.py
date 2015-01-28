@@ -6,6 +6,7 @@ Created on Jan 27, 2015
 
 import Levenshtein as lev  # @UnresolvedImport
 import string
+import math
 
 class StringMatcher(object):
     '''
@@ -14,7 +15,6 @@ class StringMatcher(object):
     def __init__(self ):
         self.correlation_map = dict()
         self.presence = dict()
-        self.threshold = 10.0
     
     def windower(self, l):
         ''' Returns a list of couple of words in the document l '''
@@ -26,8 +26,6 @@ class StringMatcher(object):
         name  = lambda p : p.split(" ")[0]
         sname = lambda p : p.split(" ")[1]
         
-        min_d_name = min_d_sname = self.threshold
-        min_w_name = min_w_sname = ""
         max_p = 0
         for chunk in self.windower(document):
             cname   = chunk[0]
@@ -39,33 +37,12 @@ class StringMatcher(object):
             pname   = 1 - ( float(c_d_name) / max(len(cname), len(name(person))) )
             psname  = 1 - ( float(c_d_sname) / max(len(csname), len(sname(person))) )
             
-            p = 0.1 * pname + 0.9 * psname
-            p = pname * psname
+            f = lambda x : math.e ** x
             
-            if p > max_p:
-                if "mazzicone" in person:
-                    print "*** {} ***".format(person)
-                    print "Name: {} -> {} = {}".format(name(person), cname, pname)
-                    print "Surname: {} -> {} = {}".format( sname(person), csname, psname )
-                    print "Total prob: {} -> {}".format(max_p, p)
-                max_p = p
+            p = f( pname * psname )
             
-#             if c_d_name < min_d_name and c_d_sname < min_d_sname:
-#                 min_d_name = c_d_name
-#                 min_d_sname = c_d_sname
-#                 min_w_name = cname
-#                 min_w_sname = csname
-#                 
-#                 if "mazzicone" in person:
-#                     print "*** {} ***".format(person)
-#                     print "Name: {} -> {} = {}".format(name(person), cname, c_d_name)
-#                     print "Surname: {} -> {} = {}".format( sname(person), csname, c_d_sname )
-                
-        
-#         pname   = 1 - ( float(min_d_name) / max(len(min_w_name), len(name(person))) )
-#         psname  = 1 - ( float(min_d_sname) / max(len(min_w_sname), len(sname(person))) )
-#         
-#         p = 0.3 * pname + 0.7 * psname
+            max_p = p if p > max_p else max_p
+            
         return max_p
     
     def match_document(self, document):

@@ -13,6 +13,7 @@ class StringMatcher(object):
     '''
     def __init__(self ):
         self.correlation_map = dict()
+        self.presence = dict()
         self.threshold = 10.0
     
     def windower(self, l):
@@ -27,12 +28,18 @@ class StringMatcher(object):
             
             for chunk in self.windower(document):
                 word = ' '.join(chunk)
+                rev_word = ' '.join(chunk)
                 
-                di = min( di, lev.distance( ni, word ) )
-                dj = min( dj, lev.distance( mj, word ) )
+                di = di if di == 0 else min( di, self.match( ni, word ), self.match( ni, rev_word ) )
+                dj = dj if dj == 0 else min( dj, self.match( mj, word ), self.match( mj, rev_word ) )
+                
+                if di == 0 and dj == 0: break
                 
             pi = 1 - (di / self.threshold)
             pj = 1 - (dj / self.threshold)
+            
+            self.presence[ni] = pi
+            self.presence[mj] = pj
             
             self.correlation_map[ (ni, mj) ] = max( self.correlation_map[(ni,mj)], pi * pj )
     
@@ -48,7 +55,7 @@ class StringMatcher(object):
         return self.correlation_map
     
     def read(self, data):
-        ''' NON ORA '''
+        ''' Read a document from file. TODO: read from MongoDB '''
         text = ''.join( [ x.lower() for x in open( data, 'r' ).readlines() ] ).replace("\n", " ")
         return text.translate(string.maketrans("",""), string.punctuation).split(" ")
         

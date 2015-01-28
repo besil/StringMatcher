@@ -20,6 +20,7 @@ if __name__ == '__main__':
     sm.match_document( document )
     
     pprint( sm.correlation_map )
+    pprint( sm.presence )
     
     
     

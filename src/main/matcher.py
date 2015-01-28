@@ -13,10 +13,28 @@ class StringMatcher(object):
     '''
     def __init__(self ):
         self.correlation_map = dict()
+        self.threshold = 10.0
     
-    def match_name(self, chunk):
-        new_name = ' '.join(chunk)
-        rev_new_name = ' '.join(chunk[::-1])
+    def windower(self, l):
+        ''' Returns a list of couple of words in the document l '''
+        for i in range(len(l)-1):
+            j = i+1
+            yield ( l[i], l[j] )
+    
+    def match_document(self, document):
+        for ni, mj in self.correlation_map.keys():
+            di = dj = self.threshold
+            
+            for chunk in self.windower(document):
+                word = ' '.join(chunk)
+                
+                di = min( di, lev.distance( ni, word ) )
+                dj = min( dj, lev.distance( mj, word ) )
+                
+            pi = 1 - (di / self.threshold)
+            pj = 1 - (dj / self.threshold)
+            
+            self.correlation_map[ (ni, mj) ] = max( self.correlation_map[(ni,mj)], pi * pj )
     
     def match(self, s1, s2):
         return lev.distance(s1, s2)
